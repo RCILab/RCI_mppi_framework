@@ -1,0 +1,83 @@
+mppi_ros2_node:
+  ros__parameters:
+    # topics
+    state_topic: /robot/joint_states
+    cmd_actuator_topic: /robot/actuator_cmd
+    goal_topic: /mppi/goal
+
+    # rates
+    control_hz: 50.0
+    cmd_timeout_sec: 0.2
+
+    # dims
+    nq: 7
+    nu: 9
+
+    # state layout in x=[q,qd] (mppi_framework convention)
+    q_slice: [0, 7]
+    qd_slice: [7, 14]
+
+    # ordering
+    joint_order:
+      - panda_joint1
+      - panda_joint2
+      - panda_joint3
+      - panda_joint4
+      - panda_joint5
+      - panda_joint6
+      - panda_joint7
+
+    # map u (len nq) -> actuator cmd (len nu)
+    # cmd[u_to_actuator_index[i]] = u[i]
+    u_to_actuator_index: [0, 1, 2, 3, 4, 5, 6]
+    default_actuator_cmd: [0., 0., 0., 0., 0., 0., 0., 0., 0.]   # length nu
+
+    # MPPI
+    device: cuda
+    dt: 0.02
+    horizon: 30
+    samples: 3000
+    lambda_: 1.0
+    gamma: 0.99
+    u_min: [-6.0, -6.0, -6.0, -6.0, -6.0, -6.0, -6.0]
+    u_max: [6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0]
+    record_sample: true
+
+    # dynamics
+    dynamics_name: double_integrator
+    dynamics_cfg:
+      nq: 7
+      dt: 0.02
+
+    # sampler
+    sampler_name: gaussian
+    sampler_cfg:
+      std_init: [3.0,3.0,3.0,3.0,3.0,3.0,3.0]
+
+    # cost
+    cost_name: composite
+    cost_cfg:
+      device: cuda           # To be passed to CompositeCost (optional but recommended)
+      terms_json: >
+        [
+          {"name":"ee_goal","weight":1.0,"cfg":{
+            "q_slice":[0,7],"qd_slice":[7,14],
+            "w_pos":10.0,"w_rot":0.0,"w_qd":0.0,"w_u":0.0,
+            "ee_goal_pos":[0.4,0.0,0.8],
+            "ee_goal_quat_wxyz":[1.0,0.0,0.0,0.0]
+          }}
+        ]
+
+    # robot (pinocchio)
+    robot.enable_torque_output: true
+    robot.urdf_path: "package://franka_description/robots/panda/panda.urdf"
+    robot.mesh_dir: "package://franka_description"     # Needed if URDF uses relative mesh paths
+    robot.default_ee_frame: "panda_link7"              # Optional (convenient when using EE pose/J)
+
+    #visualize
+    viz_enable: true
+    viz_num_samples_send: 500
+    viz_pub_stride: 1
+    viz_data_topic: /mppi/viz_data
+
+     

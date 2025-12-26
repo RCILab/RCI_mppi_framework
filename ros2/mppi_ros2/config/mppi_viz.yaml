@@ -1,0 +1,26 @@
+mppi_viz_node:
+  ros__parameters:
+    # ---------------------------------------------------
+    # 1. Topic and frame settings
+    # ---------------------------------------------------
+    viz_data_topic: /mppi/viz_data
+    viz_topic: /mppi/viz
+    viz_frame_id: panda_link0
+    state_topic: /robot/joint_states
+    # ---------------------------------------------------
+    # 2. Data structure (must match mppi_node)
+    # ---------------------------------------------------
+    nq: 7
+    nu: 7 # same for double integrator
+    horizon: 30
+    dt: 0.02
+
+    # ---------------------------------------------------
+    # 3. Visualization style
+    # ---------------------------------------------------
+    viz_line_width_opt: 0.015
+    viz_line_width_samp: 0.002
+    viz_alpha_samp: 0.15
+    viz_time_stride: 2
+
+    device: cuda

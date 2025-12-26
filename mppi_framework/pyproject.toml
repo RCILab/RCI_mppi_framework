@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mppi-framework"
+version = "0.1.0"
+description = "Modular MPPI framework"
+readme = "README.md"
+requires-python = ">=3.10,<3.11"
+dependencies = [
+  "numpy>=1.23",
+  "matplotlib>=3.7", 
+]
+
+[tool.setuptools]
+packages = ["mppi_framework"]

@@ -1,0 +1,40 @@
+# -------------------------
+# Python
+# -------------------------
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pdb
+*.egg-info/
+dist/
+build/
+.env
+.venv
+venv/
+ENV/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Caches
+.cache/
+.mypy_cache/
+.pytest_cache/
+.dmypy.json
+.pyre/
+
+
+# -------------------------
+# IDE / Editor
+# -------------------------
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# -------------------------
+# OS files
+# -------------------------
+.DS_Store
+Thumbs.db

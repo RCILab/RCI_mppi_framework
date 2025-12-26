@@ -1,0 +1,20 @@
+mujoco_ros2_bridge:
+  ros__parameters:
+    model_xml: "package://franka_description/robots/panda/xml/scene.xml"
+    wall_hz: 100.0
+    substeps: 5
+
+    state_topic: "/robot/joint_states"
+    cmd_actuator_topic: "/robot/actuator_cmd"
+    cmd_joint_topic: "/robot/joint_cmd"
+
+    use_sim_timestep: true
+    sim_dt: 0.002
+
+    publish_all_1dof_joints: true
+    publish_joint_names: ['']   # e.g., if you only want specific joints, put them here like ["hip", "knee"]
+
+    zero_ctrl_on_start: true
+
+    render: true
+    initial_keyframe: "home"
