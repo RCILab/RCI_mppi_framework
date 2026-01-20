@@ -118,7 +118,7 @@ MPPI rollouts generated using the framework:
 ![quad3d](mppi_framework/mppi_framework/outputs/quad3d.gif)
 
 ### Manipulator (ROS2)
-![manipulator](mppi_framework/mppi_framework/outputs/manipulator_ros2.gif)
+![manipulator](mppi_framework/mppi_framework/outputs/manipulator_ros2_2.gif)
 
 
 ## Citation

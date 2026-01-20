@@ -35,6 +35,10 @@ while RViz visualizes:
 - end-effector motion
 
 <p align="center">
+  <img src="../mppi_framework/mppi_framework/outputs/manipulator_ros2_2.gif" width="700">
+</p>
+
+<p align="center">
   <img src="../mppi_framework/mppi_framework/outputs/manipulator_ros2.gif" width="700">
 </p>
 

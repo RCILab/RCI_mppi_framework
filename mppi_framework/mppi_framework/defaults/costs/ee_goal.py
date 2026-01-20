@@ -86,15 +86,15 @@ class EEGoalCost(BaseCost):
         U = U.to(self.device, self.dtype)
 
         q = X[..., self.q0:self.q1]                # [B,T,7]
-
+        T = self.fk.fk_T(q)
         # position
-        ee_pos = self.fk.fk_pos(q)                 # [B,T,3]
+        ee_pos = self.fk.fk_pos(T)                 # [B,T,3]
         dp = ee_pos - self._goal_pos
         c = self.w_pos * (dp * dp).sum(dim=-1)     # [B,T]
 
         # orientation (optional)
         if self.w_rot > 0.0:
-            ee_quat = self.fk.fk_quat_wxyz(q)      # [B,T,4]
+            ee_quat = self.fk.fk_quat_wxyz(T)      # [B,T,4]
             c_rot = quat_distance_cost(ee_quat, self._goal_quat)  # [B,T]
             c = c + self.w_rot * c_rot
 
@@ -111,14 +111,14 @@ class EEGoalCost(BaseCost):
     def terminal(self, X_T: torch.Tensor) -> torch.Tensor:
         X_T = X_T.to(self.device, self.dtype)
         qT = X_T[:, self.q0:self.q1]               # [B,7]
-
-        ee_pos = self.fk.fk_pos(qT)                # [B,3]
+        TT = self.fk.fk_T(qT)
+        ee_pos = self.fk.fk_pos(TT)                # [B,3]
         goal_pos = self._goal_pos.view(1, 3)
         dp = ee_pos - goal_pos
         cT = self.w_pos * (dp * dp).sum(dim=-1)    # [B]
 
         if self.w_rot > 0.0:
-            ee_quat = self.fk.fk_quat_wxyz(qT)     # [B,4]
+            ee_quat = self.fk.fk_quat_wxyz(TT)     # [B,4]
             goal_quat = self._goal_quat.view(1, 4)
             c_rot = quat_distance_cost(ee_quat, goal_quat)        # [B]
             cT = cT + self.w_rot * c_rot

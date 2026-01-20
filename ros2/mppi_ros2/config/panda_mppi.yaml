@@ -62,7 +62,7 @@ mppi_ros2_node:
         [
           {"name":"ee_goal","weight":1.0,"cfg":{
             "q_slice":[0,7],"qd_slice":[7,14],
-            "w_pos":10.0,"w_rot":0.0,"w_qd":0.0,"w_u":0.0,
+            "w_pos":10.0,"w_rot":1.0,"w_qd":0.0,"w_u":0.0,
             "ee_goal_pos":[0.4,0.0,0.8],
             "ee_goal_quat_wxyz":[1.0,0.0,0.0,0.0]
           }}

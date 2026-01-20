@@ -2,74 +2,80 @@ import math
 import torch
 
 def rotmat_to_quat_wxyz(R: torch.Tensor, eps: float = 1e-12) -> torch.Tensor:
-    """
-    R: (...,3,3) -> quat (...,4) in (w,x,y,z)
-    안정적인 branch 방식.
-    """
-    # trace
-    t = R[..., 0, 0] + R[..., 1, 1] + R[..., 2, 2]
+    orig_shape = R.shape[:-2]          # (...,)
+    R2 = R.reshape(-1, 3, 3)           # (N,3,3)
+    N = R2.shape[0]
 
-    q = torch.zeros(R.shape[:-2] + (4,), device=R.device, dtype=R.dtype)
+    t = R2[:, 0, 0] + R2[:, 1, 1] + R2[:, 2, 2]   # (N,)
+    q = torch.zeros((N, 4), device=R.device, dtype=R.dtype)
 
-    # case 1: trace > 0
     mask = t > 0.0
     if mask.any():
-        s = torch.sqrt(t[mask] + 1.0) * 2.0  # s = 4*qw
+        s = torch.sqrt(t[mask] + 1.0) * 2.0
         q[mask, 0] = 0.25 * s
-        q[mask, 1] = (R[mask, 2, 1] - R[mask, 1, 2]) / (s + eps)
-        q[mask, 2] = (R[mask, 0, 2] - R[mask, 2, 0]) / (s + eps)
-        q[mask, 3] = (R[mask, 1, 0] - R[mask, 0, 1]) / (s + eps)
+        q[mask, 1] = (R2[mask, 2, 1] - R2[mask, 1, 2]) / (s + eps)
+        q[mask, 2] = (R2[mask, 0, 2] - R2[mask, 2, 0]) / (s + eps)
+        q[mask, 3] = (R2[mask, 1, 0] - R2[mask, 0, 1]) / (s + eps)
 
-    # case 2: trace <= 0 -> pick max diagonal
     mask2 = ~mask
     if mask2.any():
-        R2 = R[mask2]
-        # indices of max diagonal element
-        diag = torch.stack([R2[:, 0, 0], R2[:, 1, 1], R2[:, 2, 2]], dim=1)
-        i = torch.argmax(diag, dim=1)
+        Rm = R2[mask2]  # (M,3,3)
+        diag = torch.stack([Rm[:, 0, 0], Rm[:, 1, 1], Rm[:, 2, 2]], dim=1)  # (M,3)
+        i = torch.argmax(diag, dim=1)  # (M,)
 
-        q2 = torch.zeros((R2.shape[0], 4), device=R.device, dtype=R.dtype)
+        q2 = torch.zeros((Rm.shape[0], 4), device=R.device, dtype=R.dtype)
 
-        # i == 0
         m0 = i == 0
         if m0.any():
-            s = torch.sqrt(1.0 + R2[m0, 0, 0] - R2[m0, 1, 1] - R2[m0, 2, 2]) * 2.0
-            q2[m0, 0] = (R2[m0, 2, 1] - R2[m0, 1, 2]) / (s + eps)
+            s = torch.sqrt(1.0 + Rm[m0, 0, 0] - Rm[m0, 1, 1] - Rm[m0, 2, 2]) * 2.0
+            q2[m0, 0] = (Rm[m0, 2, 1] - Rm[m0, 1, 2]) / (s + eps)
             q2[m0, 1] = 0.25 * s
-            q2[m0, 2] = (R2[m0, 0, 1] + R2[m0, 1, 0]) / (s + eps)
-            q2[m0, 3] = (R2[m0, 0, 2] + R2[m0, 2, 0]) / (s + eps)
+            q2[m0, 2] = (Rm[m0, 0, 1] + Rm[m0, 1, 0]) / (s + eps)
+            q2[m0, 3] = (Rm[m0, 0, 2] + Rm[m0, 2, 0]) / (s + eps)
 
-        # i == 1
         m1 = i == 1
         if m1.any():
-            s = torch.sqrt(1.0 + R2[m1, 1, 1] - R2[m1, 0, 0] - R2[m1, 2, 2]) * 2.0
-            q2[m1, 0] = (R2[m1, 0, 2] - R2[m1, 2, 0]) / (s + eps)
-            q2[m1, 1] = (R2[m1, 0, 1] + R2[m1, 1, 0]) / (s + eps)
+            s = torch.sqrt(1.0 + Rm[m1, 1, 1] - Rm[m1, 0, 0] - Rm[m1, 2, 2]) * 2.0
+            q2[m1, 0] = (Rm[m1, 0, 2] - Rm[m1, 2, 0]) / (s + eps)
+            q2[m1, 1] = (Rm[m1, 0, 1] + Rm[m1, 1, 0]) / (s + eps)
             q2[m1, 2] = 0.25 * s
-            q2[m1, 3] = (R2[m1, 1, 2] + R2[m1, 2, 1]) / (s + eps)
+            q2[m1, 3] = (Rm[m1, 1, 2] + Rm[m1, 2, 1]) / (s + eps)
 
-        # i == 2
         m2 = i == 2
         if m2.any():
-            s = torch.sqrt(1.0 + R2[m2, 2, 2] - R2[m2, 0, 0] - R2[m2, 1, 1]) * 2.0
-            q2[m2, 0] = (R2[m2, 1, 0] - R2[m2, 0, 1]) / (s + eps)
-            q2[m2, 1] = (R2[m2, 0, 2] + R2[m2, 2, 0]) / (s + eps)
-            q2[m2, 2] = (R2[m2, 1, 2] + R2[m2, 2, 1]) / (s + eps)
+            s = torch.sqrt(1.0 + Rm[m2, 2, 2] - Rm[m2, 0, 0] - Rm[m2, 1, 1]) * 2.0
+            q2[m2, 0] = (Rm[m2, 1, 0] - Rm[m2, 0, 1]) / (s + eps)
+            q2[m2, 1] = (Rm[m2, 0, 2] + Rm[m2, 2, 0]) / (s + eps)
+            q2[m2, 2] = (Rm[m2, 1, 2] + Rm[m2, 2, 1]) / (s + eps)
             q2[m2, 3] = 0.25 * s
 
         q[mask2] = q2
 
-    # normalize
     q = q / (torch.linalg.norm(q, dim=-1, keepdim=True) + eps)
-    return q
+    return q.reshape(*orig_shape, 4)  # (...,4)
+
+
+def T_from_R_t(R, t, device="cpu", dtype=torch.float32):
+    T = torch.eye(4, device=device, dtype=dtype)
+    T[:3,:3] = R
+    T[:3, 3] = t
+    return T
+
+def Rz(a, device="cpu", dtype=torch.float32):
+    ca, sa = math.cos(a), math.sin(a)
+    return torch.tensor([[ca, -sa, 0.0],
+                         [sa,  ca, 0.0],
+                         [0.0, 0.0, 1.0]], device=device, dtype=dtype)
+
+def Rx(a, device="cpu", dtype=torch.float32):
+    ca, sa = math.cos(a), math.sin(a)
+    return torch.tensor([[1.0, 0.0, 0.0],
+                         [0.0,  ca, -sa],
+                         [0.0,  sa,  ca]], device=device, dtype=dtype)
+
 
 
 class FrankaDHFK:
-    """
-    Franka Panda DH 기반 batch FK (너가 주신 변환 규약 그대로).
-    - T_offset 없음 (joint7 frame까지)
-    - q shape: (..., 7) 지원 (예: [B,T,7] / [B,7])
-    """
 
     def __init__(self, device="cpu", dtype=torch.float32):
         self.device = device
@@ -86,6 +92,11 @@ class FrankaDHFK:
             [ 0.0000, 0.0000,  math.pi/2      ],   # Joint 6
             [ 0.0880, 0.0000,  math.pi/2      ],   # Joint 7
         ], device=self.device, dtype=self.dtype)
+
+        R_7_tool = Rz(-math.pi/4,self.device) @ Rx(math.pi,self.device)
+        t_7_tool = torch.tensor([0.0, 0.0, 0.107], dtype=torch.float32,device=self.device)
+
+        self.offset = T_from_R_t(R_7_tool, t_7_tool,device=self.device)
 
     def fk_T(self, q: torch.Tensor) -> torch.Tensor:
         """
@@ -134,25 +145,19 @@ class FrankaDHFK:
 
             T = T @ Ai
 
+        T = T @ self.offset
+
         return T
     
 
-    def fk_rot(self, q: torch.Tensor) -> torch.Tensor:
-        """q:(...,7) -> R:(...,3,3)"""
-        T = self.fk_T(q)
+    def fk_rot(self, T: torch.Tensor) -> torch.Tensor:
         return T[..., :3, :3]
 
-    def fk_quat_wxyz(self, q: torch.Tensor) -> torch.Tensor:
-        """
-        q:(...,7) -> quat:(...,4) in (w,x,y,z)
-        """
-        R = self.fk_rot(q)
+    def fk_quat_wxyz(self, T: torch.Tensor) -> torch.Tensor:
+        R = self.fk_rot(T)
         return rotmat_to_quat_wxyz(R)
     
 
-    def fk_pos(self, q: torch.Tensor) -> torch.Tensor:
-        """
-        q: (...,7) -> ee_pos: (...,3)
-        """
-        T = self.fk_T(q)
+    def fk_pos(self, T: torch.Tensor) -> torch.Tensor:
         return T[..., :3, 3]
+

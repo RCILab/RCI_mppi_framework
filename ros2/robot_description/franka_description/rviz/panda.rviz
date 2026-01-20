@@ -6,7 +6,6 @@ Panels:
       Expanded:
         - /Global Options1
         - /MarkerArray1
-        - /Pose1
       Splitter Ratio: 0.5
     Tree Height: 794
   - Class: rviz_common/Selection
@@ -106,7 +105,7 @@ Visualization Manager:
       Axes Radius: 0.10000000149011612
       Class: rviz_default_plugins/Pose
       Color: 255; 25; 0
-      Enabled: true
+      Enabled: false
       Head Length: 0.10000000149011612
       Head Radius: 0.10000000149011612
       Name: Pose
@@ -120,6 +119,15 @@ Visualization Manager:
         History Policy: Keep Last
         Reliability Policy: Reliable
         Value: /mppi/goal
+      Value: false
+    - Class: rviz_default_plugins/InteractiveMarkers
+      Enable Transparency: true
+      Enabled: true
+      Interactive Markers Namespace: /ee_goal_marker
+      Name: InteractiveMarkers
+      Show Axes: false
+      Show Descriptions: true
+      Show Visual Aids: false
       Value: true
   Enabled: true
   Global Options:
@@ -167,7 +175,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz_default_plugins/Orbit
-      Distance: 4.72160005569458
+      Distance: 1.9018162488937378
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -182,10 +190,10 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.28039851784706116
+      Pitch: 0.8603981137275696
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 4.543531894683838
+      Yaw: 4.923532485961914
     Saved: ~
 Window Geometry:
   Displays:
