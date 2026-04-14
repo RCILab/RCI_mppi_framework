@@ -7,7 +7,7 @@ From Stochastic Theory to Real-Time Robotics”**
 
 
 The full paper is available here: <br>
-👉 [Download the PDF](paper/A Systematic Survey of Model Predictive Path Integral Control.pdf)
+👉 [Download the PDF](paper/A_Systematic_Survey_of_Model_Predictive_Path_Integral_Control.pdf)
 
 The framework is designed as a unified experimental platform for developing,
 testing, and extending MPPI-based controllers — from simple simulations to
