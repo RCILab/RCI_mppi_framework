@@ -5,8 +5,7 @@ This directory contains the ROS2 packages and integration layer that sit on top 
 It provides a real-time MPPI controller for the Franka Panda arm running in MuJoCo, with trajectory visualization in RViz.
 This layer corresponds to the ROS2 / robotic side of the baseline proposed in:
 
-**“Unifying Model Predictive Path Integral Control:  
-From Stochastic Theory to Real-Time Implementation”**
+**“A Systematic Survey of Model Predictive Path Integral Control: From Stochastic Theory to Real-Time Robotics”**
 
 
 
