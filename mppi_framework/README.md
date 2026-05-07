@@ -2,8 +2,7 @@
 
 This repository contains the Python baseline for:
 
-**“Unifying Model Predictive Path Integral Control:  
-From Stochastic Theory to Real-Time Implementation”**
+**“A Systematic Survey of Model Predictive Path Integral Control: From Stochastic Theory to Real-Time Robotics”**
 
 This module provides:
 
